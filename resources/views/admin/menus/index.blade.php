@@ -20,8 +20,8 @@
                         </div>
                     </div>
                     <div class="table-responsive"> <!-- Contenedor para el scroll horizontal -->
-                <table class="table table-bordered data-table" id="menusTable">
-                    <thead>
+                <table class="table table-bordered data-table table-sm" id="menusTable">
+                    <thead class="table-dark">
                         <tr>
                             <th>ID</th>
                             <th>Nombre del Menú</th>
@@ -84,7 +84,9 @@
                             <label for="roles" class="form-label">Roles</label>
                             <select id="roles" name="roles[]" class="form-select" multiple="multiple">
                                 @foreach($roles as $role)
-                                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                <option value="{{ $role->id }}">
+                                    {{ $role->businessType->name }} - {{ $role->name }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>

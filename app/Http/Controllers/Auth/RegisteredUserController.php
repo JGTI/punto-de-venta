@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
             'phone' => $request->phone,
             'country_code' => $request->country_code,
             'gender' => $request->gender,  
-            'role_id' => Role::where('name','User Admin Negocio')->first()->id,
+            'role_id' => Role::where('name','ADMIN BUSSINESS')->first()->id,
             'password' => Hash::make($request->password),
         ]);
 

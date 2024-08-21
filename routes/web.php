@@ -7,9 +7,8 @@ use App\Http\Controllers\SocialiteController;
 use App\Http\Middleware\CheckMenuPermission;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\QuestionController;
-use App\Http\Controllers\ProviderTypeController;
+use App\Http\Controllers\BranchController;
+
 
 
 require __DIR__.'/auth.php';
@@ -41,9 +40,12 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware(['auth', CheckMenuPermission::class])->group(function () {
-    //Route::resource('menus', MenuController::class);
-    //Route::resource('questions', QuestionController::class);
-    //Route::resource('provider-types', ProviderTypeController::class);
+    Route::resource('menus', MenuController::class);
+    Route::resource('branches', BranchController::class);
+    Route::get('/branches/{id}/employees', [BranchController::class, 'getEmployees'])->name('branches.employees');
+    Route::get('/employees/{id}/edit', [BranchController::class, 'editEmployee'])->name('branches.employees.edit');
+    Route::get('/getBranches', [BranchController::class, 'getBranches'])->name('branches.getBranches');
+    Route::get('/getRoles/{id}', [BranchController::class, 'getRoles'])->name('branches.getRoles');
 });
 
 

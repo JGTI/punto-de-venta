@@ -47,7 +47,7 @@ class SocialiteController extends Controller
                     'google_id' => $user->id, // Puedes almacenar el ID de Google si lo deseas
                     'avatar' => $user->avatar,
                     'password' => Hash::make($user->avatar), // Generar una contraseña aleatoria
-                    'role_id' => Role::where('name','User Admin Negocio')->first()->id,
+                    'role_id' => Role::where('name','ADMIN BUSSINESS')->first()->id,
                 ]);
 
                 Auth::login($newUser);

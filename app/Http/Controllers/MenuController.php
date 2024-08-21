@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Role;
+use App\Models\BusinessType;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -16,8 +17,10 @@ class MenuController extends Controller
             return DataTables::of($menus)
                 ->addColumn('roles', function ($menu) {
                     $roles = json_decode($menu->roles, true);
-                    $roleNames = Role::whereIn('id', $roles)->pluck('name')->toArray();
-                    return implode(', ', $roleNames);
+                    $roleNames = Role::with('businessType')->whereIn('id', $roles)->get()->map(function($role) {
+                                    return $role->businessType->name . ' - ' . $role->name;
+                                })->toArray();
+                    return implode('<br> ', $roleNames);
                 })
                 ->addColumn('status', function ($menu) {
                     return $menu->status ? 'Activo' : 'Inactivo';
@@ -27,12 +30,12 @@ class MenuController extends Controller
                     return '<button class="editMenu btn btn-primary btn-sm" data-id="' . $menu->id . '">Editar</button>
                             <button class="deleteMenu btn btn-dark btn-sm" data-id="' . $menu->id . '">Eliminar</button>';
                 })
-                ->rawColumns(['action','icon'])
+                ->rawColumns(['action','icon','roles'])
                 ->make(true);
         }
 
-        $roles = Role::all();
-        return view('menus.index', compact('roles'));
+        $roles = Role::with('businessType')->get();
+        return view('admin.menus.index', compact('roles'));
     }
 
     public function store(Request $request)
