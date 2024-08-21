@@ -20,17 +20,15 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table id="branchesTable" class="table table-bordered data-table table-sm">
+                        <table id="branchesTable" class="table table-bordered data-table table-sm table-striped table-hover ">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Tipo de Negocio</th>
+                                    <th></th>
                                     <th>Nombre</th>
-                                    <th>Dirección</th>
-                                    <th>Teléfono</th>
-                                    <th>Email</th>
+                                    <th>Editar</th>
+                                    <th>Empleados</th>
                                     <th>Estatus</th>
-                                    <th>Acción</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -104,21 +102,23 @@
                 </div>
                 <div class="modal-body">
                     <!-- Aquí irá la DataTable de empleados -->
-                    <table id="employeesTable" class="table table-bordered data-table table-sm">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                                <th>Rol</th>
-                                <th>Estatus</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="employeesTable" class="table table-bordered data-table table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Estatus</th>
+                                    <th>Editar</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Rol</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,23 +210,40 @@
                 var $roleSelect = $('#employee_role_id');
                 $.each(data, function(index, role) {
                     var selected='';
-                    /*if(branchId==branch.id){
-                        var selected='selected';
-                        $('#employeesModalLabel').html(' - '+ branch.name + ' (' + branch.business_type.name + ')');
-                    }*/
-                    $roleSelect.append('<option value="' + role.id + '" '+selected+'>' + role.name + '</option>');
+                    $roleSelect.append('<option value="' + role.id + '" >' + role.name + '</option>');
                 });
             });
     }
 
     $(function () {
+
+
+        // Función para formatear los detalles adicionales (como un subformato)
+        function format(d) {
+            return '<table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+                '<tr>' +
+                    '<td>Dirección:</td>' +
+                    '<td>' + (d.address ? d.address : 'N/A') + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td>Teléfono:</td>' +
+                    '<td>' + (d.phone ? d.phone : 'N/A') + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                    '<td>Correo Electrónico:</td>' +
+                    '<td>' + (d.email ? d.email : 'N/A') + '</td>' +
+                '</tr>' +
+            '</table>';
+        }
+
+
         var table = $('#branchesTable').DataTable({
             processing: true,
             serverSide: true,
             dom: 'Bfrtip', 
             buttons: [
                 {
-                    text: 'Crear Nueva Sucursal',
+                    text: '<i class="ti ti-square-plus"></i> Crear Nueva Sucursal',
                     className: 'btn btn-dark mb-2',
                     action: function (e, dt, node, config) {
                         $('#branch_id').val('');
@@ -238,16 +255,37 @@
                 }
             ],
             ajax: "{{ route('branches.index') }}",
+            language: {
+                url: 'public/assets/js/es-ES.json'
+            },
             columns: [
-                {data: 'id', name: 'id'},
-                {data: 'business_type.name', name: 'business_type.name'},
+                {
+                    className: 'dt-control',
+                    orderable: false,
+                    data: null,
+                    defaultContent: '',
+                },
                 {data: 'name', name: 'name'},
-                {data: 'address', name: 'address'},
-                {data: 'phone', name: 'phone'},
-                {data: 'email', name: 'email'},
+                {data: 'action', name: 'action'},
+                {data: 'employes', name: 'employes'},
                 {data: 'active', name: 'active'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
+                {data: 'delete', name: 'delete'},
             ]
+        });
+
+        // Controlador de detalles de fila
+        $('#branchesTable tbody').on('click', 'td.dt-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row(tr);
+            if (row.child.isShown()) {
+                // Si los detalles están mostrando, esconderlos
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                // Mostrar los detalles
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+            }
         });
 
         
@@ -267,7 +305,7 @@
                 dom: 'Bfrtip', 
                 buttons: [
                     {
-                        text: 'Crear Nuevo Empleado',
+                        text: '<i class="ti ti-square-plus"></i> Crear Nuevo Empleado',
                         className: 'btn btn-dark mb-2',
                         action: function (e, dt, node, config) {
                             $('#employee_id').val('');
@@ -281,25 +319,17 @@
                     url: '{{ route("branches.employees", ":id") }}'.replace(':id', branchId),
                     type: 'GET'
                 },
+                language: {
+                    url: 'public/assets/js/es-ES.json'
+                },
                 columns: [
-                    {data: 'id', name: 'id'},
+                    {data: 'role.name', name: 'role_id'}, // Asumiendo que hay una relación entre empleados y roles
+                    {data: 'active', name: 'active'},
+                    {data: 'action', name: 'action'},
                     {data: 'name', name: 'name'},
                     {data: 'email', name: 'email'},
                     {data: 'phone', name: 'phone'},
-                    {data: 'role.name', name: 'role_id'}, // Asumiendo que hay una relación entre empleados y roles
-                    {
-                        data: 'active', 
-                        name: 'active',
-                        render: function(data, type, full, meta) {
-                            return data ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
-                        }
-                    },
-                    {
-                        data: 'action', 
-                        name: 'action', 
-                        orderable: false, 
-                        searchable: false
-                    }
+                    {data: 'delete', name: 'delete'},
                 ]
             });
 
@@ -324,10 +354,9 @@
                 $.each(data, function(index, branch) {
                     var selected='';
                     if(branchId==branch.id){
-                        var selected='selected';
                         $('#employeesModalLabel').html(' - '+ branch.name + ' (' + branch.business_type.name + ')');
                     }
-                    $branchSelect.append('<option value="' + branch.id + '" '+selected+'>' + branch.name + ' (' + branch.business_type.name + ')</option>');
+                    $branchSelect.append('<option value="' + branch.id + '" >' + branch.name + ' (' + branch.business_type.name + ')</option>');
                 });
                 get_roles(branchId);
             });

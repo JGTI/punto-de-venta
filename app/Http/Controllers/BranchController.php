@@ -22,17 +22,26 @@ class BranchController extends Controller
 
             return DataTables::of($data)
                 ->addColumn('action', function($row){
-                    $btn = '<button class="edit btn btn-primary btn-sm" data-id="'.$row->id.'">Editar</button> ';
-                    $btn .= '<button class="manage-employees btn btn-info btn-sm" data-id="'.$row->id.'"> Administrar Empleados</button> ';
-                    $btn .= '<button class="delete btn btn-dark btn-sm" data-id="'.$row->id.'">Eliminar</button>';
+                    $btn = '<center><button class="edit btn btn-primary btn-sm" data-id="'.$row->id.'"><i class="ti ti-edit"></i></button></center>';
+                    return $btn;
+                })
+                ->addColumn('employes', function($row){
+                    $btn = '<center><button class="manage-employees btn btn-warning btn-sm" data-id="'.$row->id.'"><i class="ti ti-user-check"></i></button></center> ';
+                    return $btn;
+                })
+                ->addColumn('delete', function($row){
+                    $btn = '<center><button class="delete btn btn-dark btn-sm" data-id="'.$row->id.'"><i class="ti ti-trash"></i></button></center>';
                     return $btn;
                 })
                 ->editColumn('active', function($row) {
                     return $row->active 
-                        ? '<span class="badge bg-success">Activo</span>' 
-                        : '<span class="badge bg-danger">Inactivo</span>';
+                        ? '<center><span class="badge bg-success"><i class="ti ti-check"></i> Activo</span></center>' 
+                        : '<center><span class="badge bg-danger"><i class="ti ti-circle-letter-x"></i> Inactivo</span></center>';
                 })
-                ->rawColumns(['action','active'])
+                ->editColumn('name', function($row) {
+                    return $row->name.' ('.$row->businessType->name.')';
+                })
+                ->rawColumns(['action','active','name','delete','employes'])
                 ->make(true);
         }
 
@@ -50,16 +59,19 @@ class BranchController extends Controller
 
             return DataTables::of($employees)
                 ->addColumn('action', function($row){
-                    $btn = '<button class="editEmploye btn btn-primary btn-sm" data-id="'.$row->id.'">Editar</button> ';
-                    $btn .= '<button class="deleteEmploye btn btn-dark btn-sm" data-id="'.$row->id.'">Eliminar</button>';
+                    $btn = '<center><button class="editEmploye btn btn-primary btn-sm" data-id="'.$row->id.'"><i class="ti ti-edit"></i></button></center>';
+                    return $btn;
+                })
+                ->addColumn('delete', function($row){
+                    $btn = '<center><button class="deleteEmploye btn btn-dark btn-sm" data-id="'.$row->id.'"><i class="ti ti-trash"></i></button></center>';
                     return $btn;
                 })
                 ->editColumn('active', function($row) {
                     return $row->active 
-                        ? '<span class="badge bg-success">Activo</span>' 
-                        : '<span class="badge bg-danger">Inactivo</span>';
+                        ? '<center><span class="badge bg-success"><i class="ti ti-check"></i> Activo</span></center>' 
+                        : '<center><span class="badge bg-danger"><i class="ti ti-circle-letter-x"></i> Inactivo</span></center>';
                 })
-                ->rawColumns(['action', 'active'])
+                ->rawColumns(['action', 'active','delete'])
                 ->make(true);
         }
     }
